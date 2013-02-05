@@ -131,7 +131,7 @@ def write_csv(fname_in,fname_out):
     for rec in records:
         if 'comment' in rec.data.keys():
             out.write(
-                    ','.join(rec.data['author'])+';'
+                    ','.join(rec.data['author'])+' '+rec.data['year']+';'
                     +rec.data['title']+';'
                     +rec.data['comment']+'\n')
     out.close()
