@@ -67,7 +67,10 @@ class BibtexRecord():
                 continue
             if ty == -1: ty = x[0]
             self.data[k] = self.build(ty, x)
-        self.date[1] = self.data["year"]
+        if 'year' in self.data.keys():
+            self.date[1] = self.data['year']
+        else:
+            self.date[1] = 1900
 
     def _build_author(self, t):
         names, honorifics, lineage, last = [], [], [], ''
@@ -75,7 +78,13 @@ class BibtexRecord():
         if t[3]: lineage = t[3]
         if t[2]: last = t[2]
         if t[1]: names = t[1].split(' ') #XXX
-        return [names, last, lineage, honorifics]
+        #return [names, last, lineage, honorifics]
+        ret = last
+        first = ' '.join(names)
+        if len(first)>0:
+            return (first)[0]+' '+last
+        else:
+            return last
 
     def build(self, ty, x):
         if ty in (_BIBTEX_OTHER, _BIBTEX_VERBATIM):
@@ -114,3 +123,16 @@ def read_file(path):
     strictness = False
     # Read the string:
     return _iterate_bibtexsource(_bibtex.open_file(path, strictness))
+
+def write_csv(fname_in,fname_out):
+    records = read_file(fname_in)
+    out = open(fname_out,'w')
+    out.write('Author;Title;Comments\n')
+    for rec in records:
+        if 'comment' in rec.data.keys():
+            out.write(
+                    ','.join(rec.data['author'])+';'
+                    +rec.data['title']+';'
+                    +rec.data['comment']+'\n')
+    out.close()
+
